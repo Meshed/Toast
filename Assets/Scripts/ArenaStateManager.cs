@@ -18,10 +18,21 @@ public class ArenaStateManager : MonoBehaviour {
 
 		// Create fighters
 		GameObject fighter = (GameObject) GameObject.Instantiate (Fighter);
+		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 1";
+		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 1;
+		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
+		_fighters.Add (fighter);
+		fighter = (GameObject) GameObject.Instantiate (Fighter);
+		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 2";
+		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 2;
+		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
 		_fighters.Add (fighter);
 
 		// Create enemies
 		var enemy = (GameObject) GameObject.Instantiate (Fighter);
+		enemy.GetComponentInChildren<HealthManager> ().FighterName = "Enemy 1";
+		enemy.GetComponentInChildren<HealthManager> ().TeamPosition = 1;
+		enemy.GetComponentInChildren<HealthManager> ().TeamNumber = 2;
 		_enemies.Add (enemy);
 	}
 	
