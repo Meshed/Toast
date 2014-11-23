@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\ArenaStateManager.cs" />
      <Compile Include="Assets\Scripts\DamageManager.cs" />
      <Compile Include="Assets\Scripts\FightManager.cs" />
      <Compile Include="Assets\Scripts\FighterStats.cs" />
@@ -53,6 +54,7 @@
      <Compile Include="Assets\Scripts\SceneNavigation\ArenaMenuHandler.cs" />
      <Compile Include="Assets\Scripts\SceneNavigation\CreditsMenuHandler.cs" />
      <Compile Include="Assets\Scripts\SceneNavigation\MainMenuHandler.cs" />
+     <Compile Include="Assets\Scripts\StatusManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/4.6.0/UnityEngine.UI.dll</HintPath>
  </Reference>
