@@ -25,5 +25,10 @@ public class DamageManager : MonoBehaviour {
 		{
 			_fighterStats.Health -= damage;
 		}
+
+		if(_fighterStats.Health <= 0)
+		{
+			// Destroy fighter game object if this is an NPC
+		}
 	}
 }
