@@ -89,11 +89,11 @@ public class HealthManager : MonoBehaviour {
 					_health.rectTransform.anchoredPosition = new Vector2(-61, -94);
 					break;
 				case 3:
-					_name.rectTransform.anchoredPosition = new Vector2(108, -112);
+					_name.rectTransform.anchoredPosition = new Vector2(-108, -112);
 					_health.rectTransform.anchoredPosition = new Vector2(-61, -132);
 					break;
 				case 4:
-					_name.rectTransform.anchoredPosition = new Vector2(108, -36);
+					_name.rectTransform.anchoredPosition = new Vector2(-108, -148);
 					_health.rectTransform.anchoredPosition = new Vector2(-61, -168);
 					break;
 			}

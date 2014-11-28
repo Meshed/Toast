@@ -49,8 +49,11 @@
      <Compile Include="Assets\Scripts\ArenaStateManager.cs" />
      <Compile Include="Assets\Scripts\DamageManager.cs" />
      <Compile Include="Assets\Scripts\FightManager.cs" />
+     <Compile Include="Assets\Scripts\FighterService.cs" />
      <Compile Include="Assets\Scripts\FighterStats.cs" />
      <Compile Include="Assets\Scripts\HealthManager.cs" />
+     <Compile Include="Assets\Scripts\MonsterManager.cs" />
+     <Compile Include="Assets\Scripts\MonsterService.cs" />
      <Compile Include="Assets\Scripts\SceneNavigation\ArenaMenuHandler.cs" />
      <Compile Include="Assets\Scripts\SceneNavigation\CreditsMenuHandler.cs" />
      <Compile Include="Assets\Scripts\SceneNavigation\MainMenuHandler.cs" />
