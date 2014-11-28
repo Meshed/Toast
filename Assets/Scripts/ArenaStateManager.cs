@@ -2,15 +2,19 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ArenaStateManager : MonoBehaviour {
 	public GameObject Fighter;
+	public GameObject Monster;
 	public Text GameOver;
 	public Button StartButton;
 	public Button MainMenuButton;
+	public Text Wave;
 
 	public List<GameObject> Fighters = new List<GameObject>();
-	public List<GameObject> Enemies = new List<GameObject>();
+
+	int _monsterWave = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -46,7 +50,7 @@ public class ArenaStateManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		int healthForAllFighters = GetHealthForAllFighters ();
-		int healthForAllEnemies = GetHealthForAllEnemies ();
+		int healthForAllMonsters = GetHealthForAllEnemies ();
 
 		if(healthForAllFighters == 0)
 		{
@@ -54,12 +58,36 @@ public class ArenaStateManager : MonoBehaviour {
 
 			if(healthForAllFighters == 0)
 			{
-				GameOver.text = "Game Over - You Lose";
+				if(_monsterWave <= 2)
+					GameOver.text = "You have completed " + (_monsterWave - 1) + " wave";
+				else
+					GameOver.text = "You have completed " + (_monsterWave - 1) + " waves";
 			}
 
-			StartButton.gameObject.SetActive(true);
 			MainMenuButton.gameObject.SetActive(true);
 		}
+
+		if(healthForAllMonsters == 0 && Time.timeScale == 1.0f)
+		{
+			_monsterWave++;
+
+			if(_monsterWave <= 4)
+			{
+				for(int counter = 1; counter <= _monsterWave; counter++)
+				{
+					CreateMonster("Monster " + counter, counter);
+				}
+			}
+			else
+			{
+				CreateMonster("Monster 1", 1);
+				CreateMonster("Monster 2", 2);
+				CreateMonster("Monster 3", 3);
+				CreateMonster("Monster 4", 4);
+			}
+		}
+
+		UpdateWaveLabel ();
 	}
 
 	public void StartFight()
@@ -69,21 +97,23 @@ public class ArenaStateManager : MonoBehaviour {
 		MainMenuButton.gameObject.SetActive (false);
 		GameOver.text = "";
 
-		// Create enemies
-		var enemy = (GameObject) GameObject.Instantiate (Fighter);
-		enemy.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		enemy.GetComponentInChildren<HealthManager> ().FighterName = "Enemy 1";
-		enemy.GetComponentInChildren<HealthManager> ().TeamPosition = 1;
-		enemy.GetComponentInChildren<HealthManager> ().TeamNumber = 2;
-		Enemies.Add (enemy);
-		enemy = (GameObject) GameObject.Instantiate (Fighter);
-		enemy.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		enemy.GetComponentInChildren<HealthManager> ().FighterName = "Enemy 2";
-		enemy.GetComponentInChildren<HealthManager> ().TeamPosition = 2;
-		enemy.GetComponentInChildren<HealthManager> ().TeamNumber = 2;
-		Enemies.Add (enemy);
+		// Create monsters
+		CreateMonster ("Monster 1", 1);
 
 		Time.timeScale = 1.0f;
+	}
+
+	private void UpdateWaveLabel()
+	{
+		Wave.text = "Wave: " + _monsterWave;
+	}
+
+	private void CreateMonster(string monsterName, int teamPosition)
+	{
+		var monster = (GameObject) GameObject.Instantiate (Monster);
+		monster.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
+		monster.GetComponentInChildren<HealthManager> ().FighterName = monsterName;
+		monster.GetComponentInChildren<HealthManager> ().TeamPosition = teamPosition;
 	}
 
 	private int GetHealthForAllFighters()
@@ -100,10 +130,12 @@ public class ArenaStateManager : MonoBehaviour {
 	private int GetHealthForAllEnemies()
 	{
 		int totalHealth = 0;
+
+		List<GameObject> monsters = MonsterService.GetAllMonsters ();
 		
-		foreach(var enemy in Enemies)
+		foreach(var monster in monsters)
 		{
-			totalHealth += enemy.GetComponent<FighterStats>().Health;
+			totalHealth += monster.GetComponent<FighterStats>().Health;
 		}
 		
 		return totalHealth;

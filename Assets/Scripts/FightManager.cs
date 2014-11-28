@@ -8,7 +8,7 @@ public class FightManager : MonoBehaviour {
 	HealthManager _healthManager;
 	float _attackDelay = 1f;
 	float _attackTimer = 0f;
-	GameObject _enemy;
+	public GameObject _enemy;
 
 	// Use this for initialization
 	void Start () {
@@ -25,31 +25,47 @@ public class FightManager : MonoBehaviour {
 		_attackTimer -= Time.deltaTime;
 		_enemy = null;
 
-		if(_healthManager.TeamNumber == 1)
+		if (_attackTimer < 0) 
 		{
-			int enemyIndex;
-
-			enemyIndex = ArenaStateManager.Enemies.Count == 1 ? 0 : Random.Range(0, ArenaStateManager.Enemies.Count);
-			_enemy = ArenaStateManager.Enemies[enemyIndex];
-		}
-		else
-		{
-			if(ArenaStateManager.Fighters.Count == 1)
+			if(_healthManager.TeamNumber == 1)
 			{
-				_enemy = ArenaStateManager.Fighters[0];
+				int enemyIndex;
+
+				int monsterCount = MonsterService.CountOfAllMonsters();
+				if(monsterCount > 0)
+				{
+					enemyIndex = MonsterService.CountOfAllMonsters() == 1 ? 0 : Random.Range(0, MonsterService.CountOfAllMonsters());
+					_enemy = MonsterService.GetAllMonsters()[enemyIndex];
+				}
 			}
 			else
 			{
-				int enemyIndex = Random.Range (0, ArenaStateManager.Fighters.Count);
-				_enemy = ArenaStateManager.Fighters[enemyIndex];
+				if(FighterService.HealthOfAllFighters() > 0)
+				{
+					if(ArenaStateManager.Fighters.Count == 1)
+					{
+						_enemy = ArenaStateManager.Fighters[0];
+					}
+					else
+					{
+						do
+						{
+							int enemyIndex = Random.Range (0, ArenaStateManager.Fighters.Count);
+							_enemy = ArenaStateManager.Fighters[enemyIndex];
+						} while(_enemy.GetComponent<FighterStats>().Health <= 0);
+					}
+				}
+
 			}
-		}
 
-		if (_attackTimer < 0) 
-		{
-			DamageManager _enemyDamageManager = _enemy.GetComponent<DamageManager>();
+			if(_enemy)
+			{
+				DamageManager _enemyDamageManager = _enemy.GetComponent<DamageManager>();
+			
+				if(_enemyDamageManager)
+					_enemyDamageManager.TakeDamage(_fighterStats.Attack);
+			}
 
-			_enemyDamageManager.TakeDamage(_fighterStats.Attack);
 			_attackTimer = _attackDelay;
 		}
 	}

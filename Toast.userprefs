@@ -1,13 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/DamageManager.cs">
-    <Files>
-      <File FileName="Assets/Scripts/FightManager.cs" Line="33" Column="1" />
-      <File FileName="Assets/Scripts/ArenaStateManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/HealthManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/DamageManager.cs" Line="31" Column="52" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
