@@ -6,7 +6,7 @@ public class FightManager : MonoBehaviour {
 
 	FighterStats _fighterStats;
 	HealthManager _healthManager;
-	float _attackDelay = 1f;
+	public float _attackDelay = 1f;
 	float _attackTimer = 0f;
 	public GameObject _enemy;
 
