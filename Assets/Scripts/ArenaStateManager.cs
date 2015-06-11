@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 public class ArenaStateManager : MonoBehaviour {
 	public GameObject Fighter;
@@ -14,83 +12,85 @@ public class ArenaStateManager : MonoBehaviour {
 
 	public List<GameObject> Fighters = new List<GameObject>();
 
+    private FighterService _fighterService;
+    private MonsterService _monsterService;
 	int _monsterWave = 1;
 
 	// Use this for initialization
 	void Start () {
 		Time.timeScale = 0.0f;
+        _fighterService = new FighterService(Fighter);
+        _monsterService = new MonsterService(Monster);
 
 		// Create fighters
-		GameObject fighter = (GameObject) GameObject.Instantiate (Fighter);
-		fighter.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 1";
-		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 1;
-		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
+		var fighter = _fighterService.CreateFighter(this, "Fighter 1", 1);
+	    Fighters.Add (fighter);
+	    fighter = _fighterService.CreateFighter(this, "Fighter 2", 2);
 		Fighters.Add (fighter);
-		fighter = (GameObject) GameObject.Instantiate (Fighter);
-		fighter.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 2";
-		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 2;
-		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
+	    fighter = _fighterService.CreateFighter(this, "Fighter 3", 3);
 		Fighters.Add (fighter);
-		fighter = (GameObject) GameObject.Instantiate (Fighter);
-		fighter.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 3";
-		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 3;
-		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
-		Fighters.Add (fighter);
-		fighter = (GameObject) GameObject.Instantiate (Fighter);
-		fighter.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		fighter.GetComponentInChildren<HealthManager> ().FighterName = "Fighter 4";
-		fighter.GetComponentInChildren<HealthManager> ().TeamPosition = 4;
-		fighter.GetComponentInChildren<HealthManager> ().TeamNumber = 1;
+	    fighter = _fighterService.CreateFighter(this, "Fighter 4", 4);
 		Fighters.Add (fighter);
 	}
-	
-	// Update is called once per frame
+
+    // Update is called once per frame
 	void Update () {
-		int healthForAllFighters = GetHealthForAllFighters ();
-		int healthForAllMonsters = GetHealthForAllEnemies ();
-
-		if(healthForAllFighters == 0)
+		if(FightCompleted())
 		{
-			Time.timeScale = 0.0f;
-
-			if(healthForAllFighters == 0)
-			{
-				if(_monsterWave <= 2)
-					GameOver.text = "You have completed " + (_monsterWave - 1) + " wave";
-				else
-					GameOver.text = "You have completed " + (_monsterWave - 1) + " waves";
-			}
-
-			MainMenuButton.gameObject.SetActive(true);
+			EndFight();
 		}
 
-		if(healthForAllMonsters == 0 && Time.timeScale == 1.0f)
+		if(WaveCompleted())
 		{
-			_monsterWave++;
-
-			if(_monsterWave <= 4)
-			{
-				for(int counter = 1; counter <= _monsterWave; counter++)
-				{
-					CreateMonster("Monster " + counter, counter);
-				}
-			}
-			else
-			{
-				CreateMonster("Monster 1", 1);
-				CreateMonster("Monster 2", 2);
-				CreateMonster("Monster 3", 3);
-				CreateMonster("Monster 4", 4);
-			}
+		    _monsterWave++;
+		    CreateMonsterWave();
 		}
 
-		UpdateWaveLabel ();
+	    UpdateWaveLabel ();
 	}
 
-	public void StartFight()
+    private void EndFight()
+    {
+        Time.timeScale = 0.0f;
+
+        if (_monsterWave <= 2)
+            GameOver.text = "You have completed " + (_monsterWave - 1) + " wave";
+        else
+            GameOver.text = "You have completed " + (_monsterWave - 1) + " waves";
+
+        MainMenuButton.gameObject.SetActive(true);
+    }
+    private bool FightCompleted()
+    {
+        return FighterService.HealthOfAllFighters() == 0;
+    }
+    private void CreateMonsterWave()
+    {
+        if (_monsterWave <= 4)
+        {
+            for (int counter = 1; counter <= _monsterWave; counter++)
+            {
+                _monsterService.CreateMonster(this, "Monster " + counter, counter);
+            }
+        }
+        else
+        {
+            _monsterService.CreateMonster(this, "Monster 1", 1);
+            _monsterService.CreateMonster(this, "Monster 2", 2);
+            _monsterService.CreateMonster(this, "Monster 3", 3);
+            _monsterService.CreateMonster(this, "Monster 4", 4);
+        }
+    }
+    private static bool WaveCompleted()
+    {
+        return MonsterService.HealthOfAllMonsters() == 0 && Time.timeScale == 1.0f;
+    }
+    private void UpdateWaveLabel()
+    {
+        Wave.text = "Wave: " + _monsterWave;
+    }
+
+    public void StartFight()
 	{
 		// Reset player and enemy health
 		StartButton.gameObject.SetActive (false);
@@ -98,46 +98,8 @@ public class ArenaStateManager : MonoBehaviour {
 		GameOver.text = "";
 
 		// Create monsters
-		CreateMonster ("Monster 1", 1);
+		_monsterService.CreateMonster (this, "Monster 1", 1);
 
 		Time.timeScale = 1.0f;
-	}
-
-	private void UpdateWaveLabel()
-	{
-		Wave.text = "Wave: " + _monsterWave;
-	}
-
-	private void CreateMonster(string monsterName, int teamPosition)
-	{
-		var monster = (GameObject) GameObject.Instantiate (Monster);
-		monster.GetComponentInChildren<FightManager> ().ArenaStateManager = this;
-		monster.GetComponentInChildren<HealthManager> ().FighterName = monsterName;
-		monster.GetComponentInChildren<HealthManager> ().TeamPosition = teamPosition;
-	}
-
-	private int GetHealthForAllFighters()
-	{
-		int totalHealth = 0;
-
-		foreach(var fighter in Fighters)
-		{
-			totalHealth += fighter.GetComponent<FighterStats>().Health;
-		}
-
-		return totalHealth;
-	}
-	private int GetHealthForAllEnemies()
-	{
-		int totalHealth = 0;
-
-		List<GameObject> monsters = MonsterService.GetAllMonsters ();
-		
-		foreach(var monster in monsters)
-		{
-			totalHealth += monster.GetComponent<FighterStats>().Health;
-		}
-		
-		return totalHealth;
 	}
 }

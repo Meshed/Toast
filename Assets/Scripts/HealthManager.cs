@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class HealthManager : MonoBehaviour {
@@ -14,13 +13,11 @@ public class HealthManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Text[] _playerUILabels;
-
-		_fighter = this.transform.parent.gameObject;
+	    _fighter = transform.parent.gameObject;
 		_fighterStats = _fighter.GetComponent<FighterStats> ();
-		_playerUILabels = _fighter.GetComponentsInChildren<Text> ();
+		Text[] playerUILabels = _fighter.GetComponentsInChildren<Text> ();
 
-		foreach(var label in _playerUILabels)
+		foreach(var label in playerUILabels)
 		{
 			switch(label.name)
 			{

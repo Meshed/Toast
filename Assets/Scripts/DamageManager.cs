@@ -1,34 +1,37 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class DamageManager : MonoBehaviour {
+public class DamageManager : MonoBehaviour
+{
+    public int ChanceToDodge = 0;
+
 	FighterStats _fighterStats;
 
-	// Use this for initialization
 	void Start () {
-		_fighterStats = this.GetComponent<FighterStats> ();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+		GetFighterStats();
 	}
 
 	public void TakeDamage(int damage)
 	{
-		if (_fighterStats.Health <= 0)
-			return;
+		if (FighterDead()) return;
 
-		int dodgeRoll = Random.Range (1, 101);
-
-		if (dodgeRoll < 90)
+		if (PlayerDodgedAttack() == false)
 		{
 			_fighterStats.Health -= damage;
 		}
-
-		if(_fighterStats.Health <= 0)
-		{
-			// Destroy fighter game object if this is an NPC
-		}
 	}
+
+    private void GetFighterStats()
+    {
+        _fighterStats = GetComponent<FighterStats>();
+    }
+    private bool FighterDead()
+    {
+        return _fighterStats.Health <= 0;
+    }
+    private bool PlayerDodgedAttack()
+    {
+        int dodgeRoll = Random.Range(1, 101);
+
+        return dodgeRoll < ChanceToDodge;
+    }
 }

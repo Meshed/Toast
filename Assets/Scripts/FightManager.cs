@@ -1,72 +1,127 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class FightManager : MonoBehaviour {
 	public ArenaStateManager ArenaStateManager;
+    public float AttackDelay = 1f;
 
 	FighterStats _fighterStats;
 	HealthManager _healthManager;
-	float _attackDelay = 1f;
-	float _attackTimer = 0f;
-	public GameObject _enemy;
+	float _attackTimer;
+	GameObject _target;
 
 	// Use this for initialization
 	void Start () {
-		_fighterStats = this.GetComponent<FighterStats> ();
-		_healthManager = this.GetComponentInChildren<HealthManager> ();
-		_attackTimer = _attackDelay;
+		_fighterStats = GetComponent<FighterStats> ();
+		_healthManager = GetComponentInChildren<HealthManager> ();
+		_attackTimer = AttackDelay;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(_fighterStats.Health <= 0) return;
-		if(Time.timeScale == 0) return;
+		if(IsDead()) return;
+		if(GameIsPaused()) return;
 
-		_attackTimer -= Time.deltaTime;
-		_enemy = null;
+		UpdateAttackTimer();
+		ResetTarget();
 
-		if (_attackTimer < 0) 
+		if (TimeToAttack()) 
 		{
-			if(_healthManager.TeamNumber == 1)
+			if(IsFighter())
 			{
-				int enemyIndex;
-
-				int monsterCount = MonsterService.CountOfAllMonsters();
-				if(monsterCount > 0)
-				{
-					enemyIndex = MonsterService.CountOfAllMonsters() == 1 ? 0 : Random.Range(0, MonsterService.CountOfAllMonsters());
-					_enemy = MonsterService.GetAllMonsters()[enemyIndex];
-				}
+				TargetRandomMonster();
 			}
 			else
 			{
-				if(FighterService.HealthOfAllFighters() > 0)
+				if(AtLeastOneFighterIsAlive())
 				{
-					if(ArenaStateManager.Fighters.Count == 1)
+					if(OnlyOneFighter())
 					{
-						_enemy = ArenaStateManager.Fighters[0];
+						TargetFirstFighter();
 					}
 					else
 					{
-						do
-						{
-							int enemyIndex = Random.Range (0, ArenaStateManager.Fighters.Count);
-							_enemy = ArenaStateManager.Fighters[enemyIndex];
-						} while(_enemy.GetComponent<FighterStats>().Health <= 0);
+						TargetRandomFighter();
 					}
 				}
 
 			}
 
-			if(_enemy)
+			if(HaveTarget())
 			{
-				DamageManager _enemyDamageManager = _enemy.GetComponent<DamageManager>();
-			
-				if(_enemyDamageManager)
-					_enemyDamageManager.TakeDamage(_fighterStats.Attack);
+			    AttackTarget();
 			}
 
-			_attackTimer = _attackDelay;
+		    ResetAttackTimer();
 		}
 	}
+
+    private void AttackTarget()
+    {
+        var enemyDamageManager = _target.GetComponent<DamageManager>();
+
+        if (enemyDamageManager)
+            enemyDamageManager.TakeDamage(_fighterStats.Attack);
+    }
+    private GameObject HaveTarget()
+    {
+        return _target;
+    }
+    private void TargetFirstFighter()
+    {
+        _target = ArenaStateManager.Fighters[0];
+    }
+    private bool OnlyOneFighter()
+    {
+        return ArenaStateManager.Fighters.Count == 1;
+    }
+    private static bool AtLeastOneFighterIsAlive()
+    {
+        return FighterService.HealthOfAllFighters() > 0;
+    }
+    private bool IsFighter()
+    {
+        return _healthManager.TeamNumber == 1;
+    }
+    private bool TimeToAttack()
+    {
+        return _attackTimer < 0;
+    }
+    private bool IsDead()
+    {
+        return _fighterStats.Health <= 0;
+    }
+    private static bool GameIsPaused()
+    {
+        return Time.timeScale == 0;
+    }
+    private void TargetRandomMonster()
+    {
+        int monsterCount = MonsterService.CountOfAllMonsters();
+
+        if (monsterCount > 0)
+        {
+            int enemyIndex = MonsterService.CountOfAllMonsters() == 1 ? 0 : Random.Range(0, MonsterService.CountOfAllMonsters());
+            _target = MonsterService.GetAllMonsters()[enemyIndex];
+        }
+    }
+    private void TargetRandomFighter()
+    {
+        do
+        {
+            int enemyIndex = Random.Range(0, ArenaStateManager.Fighters.Count);
+            _target = ArenaStateManager.Fighters[enemyIndex];
+        } while (_target.GetComponent<FighterStats>().Health <= 0);
+    }
+    private void ResetTarget()
+    {
+        _target = null;
+    }
+    private void UpdateAttackTimer()
+    {
+        _attackTimer -= Time.deltaTime;
+    }
+    private void ResetAttackTimer()
+    {
+        _attackTimer = AttackDelay;
+    }
 }
